@@ -1,0 +1,146 @@
+import 'dart:math';
+import 'dart:io';
+
+void main() {
+  print("ALGORITMA SORTING");
+  print("1. Insertion");
+  print("2. Selection");
+  print("3. Bubble");
+  print("4. Shell");
+  print("5. Quick");
+  print("6. Merge");
+  stdout.write("Pilihan: ");
+  int choice = int.parse(stdin.readLineSync()!);
+  print("1. Ascending");
+  print("2. Descending");
+  stdout.write("Pilihan: ");
+  int orderChoice = int.parse(stdin.readLineSync()!);
+  bool ascending = orderChoice == 1;
+
+  List<int> data = List.generate(100, (index) => Random().nextInt(100) + 1);
+  print("Data sebelum diurutkan: $data");
+
+  var stopwatch = Stopwatch()..start();
+  switch (choice) {
+    case 1:
+      insertionSort(data, ascending);
+      break;
+    case 2:
+      selectionSort(data, ascending);
+      break;
+    case 3:
+      bubbleSort(data, ascending);
+      break;
+    case 4:
+      shellSort(data, ascending);
+      break;
+    case 5:
+      data = quickSort(data, ascending);
+      break;
+    case 6:
+      data = mergeSort(data, ascending);
+      break;
+    default:
+      print("Pilihan tidak valid.");
+      return;
+  }
+
+  stopwatch.stop();
+  print("Data setelah diurutkan: $data");
+  print("Waktu: ${stopwatch.elapsedMilliseconds} ms");
+}
+
+void insertionSort(List<int> arr, bool ascending) {
+  for (int i = 1; i < arr.length; i++) {
+    int key = arr[i];
+    int j = i - 1;
+    while (j >= 0 && ((ascending && arr[j] > key) || (!ascending && arr[j] < key))) {
+      arr[j + 1] = arr[j];
+      j--;
+    }
+    arr[j + 1] = key;
+  }
+}
+
+void selectionSort(List<int> arr, bool ascending) {
+  for (int i = 0; i < arr.length; i++) {
+    int minMaxIdx = i;
+    for (int j = i + 1; j < arr.length; j++) {
+      if ((ascending && arr[j] < arr[minMaxIdx]) || (!ascending && arr[j] > arr[minMaxIdx])) {
+        minMaxIdx = j;
+      }
+    }
+    int temp = arr[i];
+    arr[i] = arr[minMaxIdx];
+    arr[minMaxIdx] = temp;
+  }
+}
+
+void bubbleSort(List<int> arr, bool ascending) {
+  int n = arr.length;
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n - i - 1; j++) {
+      if ((ascending && arr[j] > arr[j + 1]) || (!ascending && arr[j] < arr[j + 1])) {
+        int temp = arr[j];
+        arr[j] = arr[j + 1];
+        arr[j + 1] = temp;
+      }
+    }
+  }
+}
+
+void shellSort(List<int> arr, bool ascending) {
+  int n = arr.length;
+  for (int gap = n ~/ 2; gap > 0; gap ~/= 2) {
+    for (int i = gap; i < n; i++) {
+      int temp = arr[i];
+      int j = i;
+      while (j >= gap && ((ascending && arr[j - gap] > temp) || (!ascending && arr[j - gap] < temp))) {
+        arr[j] = arr[j - gap];
+        j -= gap;
+      }
+      arr[j] = temp;
+    }
+  }
+}
+
+List<int> quickSort(List<int> arr, bool ascending) {
+  if (arr.length <= 1) return arr;
+  int pivot = arr[arr.length ~/ 2];
+  List<int> left = [];
+  List<int> middle = [];
+  List<int> right = [];
+  
+  for (var value in arr) {
+    if (value == pivot) {
+      middle.add(value);
+    } else if ((ascending && value < pivot) || (!ascending && value > pivot)) {
+      left.add(value);
+    } else {
+      right.add(value);
+    }
+  }
+  return [...quickSort(left, ascending), ...middle, ...quickSort(right, ascending)];
+}
+
+List<int> mergeSort(List<int> arr, bool ascending) {
+  if (arr.length <= 1) return arr;
+  int mid = arr.length ~/ 2;
+  List<int> left = mergeSort(arr.sublist(0, mid), ascending);
+  List<int> right = mergeSort(arr.sublist(mid), ascending);
+  return merge(left, right, ascending);
+}
+
+List<int> merge(List<int> left, List<int> right, bool ascending) {
+  List<int> result = [];
+  while (left.isNotEmpty && right.isNotEmpty) {
+    if ((ascending && left.first < right.first) || (!ascending && left.first > right.first)) {
+      result.add(left.removeAt(0));
+    } else {
+      result.add(right.removeAt(0));
+    }
+  }
+  result.addAll(left);
+  result.addAll(right);
+  return result;
+}
